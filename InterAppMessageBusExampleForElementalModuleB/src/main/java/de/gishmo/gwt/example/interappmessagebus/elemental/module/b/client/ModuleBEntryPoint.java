@@ -4,17 +4,26 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
+import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
-import de.gishmo.gwt.interappmessagebus.client.InterAppMessageEvent;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
+
+import de.gishmo.gwt.interappmessagebus.client.InterAppMessage;
 import de.gishmo.gwt.interappmessagebus.client.elemental.InterAppMessageBus;
 import de.gishmo.gwt.interappmessagebus.client.elemental.prototype.InterAppMessageHandler;
+
+import elemental.client.Browser;
+import elemental.html.Window;
 
 public class ModuleBEntryPoint
   implements EntryPoint {
 
   private FlowPanel protocolContainer;
+  private TextBox    postValue;
 
   /*
    * (non-Javadoc)
@@ -23,8 +32,11 @@ public class ModuleBEntryPoint
    */
   @Override
   public void onModuleLoad() {
-    Resources resources = GWT.create(Resources.class);
-    ApplicaitonStyle style = resources.style();
+    Window parentWindow = Browser.getWindow()
+                                 .getParent();
+
+    Resources        resources = GWT.create(Resources.class);
+    ApplicaitonStyle style     = resources.style();
     style.ensureInjected();
 
     FlowPanel container = new FlowPanel();
@@ -32,6 +44,40 @@ public class ModuleBEntryPoint
     Label headline = new Label("Module B");
     headline.addStyleName(style.headline());
     container.add(headline);
+
+    FlowPanel formularContianer = new FlowPanel();
+    formularContianer.addStyleName(style.formularContainer());
+    container.add(formularContianer);
+
+    VerticalPanel vp = new VerticalPanel();
+    formularContianer.add(vp);
+
+    HorizontalPanel hp01 = new HorizontalPanel();
+    vp.add(hp01);
+    Label label = new Label("Parmeter:");
+    label.addStyleName(style.label());
+    hp01.add(label);
+
+    postValue = new TextBox();
+    postValue.addStyleName(style.textBox());
+    hp01.add(postValue);
+
+    HorizontalPanel hp02 = new HorizontalPanel();
+    vp.add(hp02);
+
+    Button showDocIdbutton = new Button("Send Value");
+    showDocIdbutton.addStyleName(style.formularButton());
+    showDocIdbutton.addClickHandler(event -> {
+      InterAppMessageBus.postMessage(parentWindow,
+                                     InterAppMessage.builder()
+                                                    .source("modeulB")
+                                                    .target("modulA")
+                                                    .eventType("sendValue")
+                                                    .add(postValue.getText())
+                                                    .build());
+      protocolContainer.add(new Label("Fire Event: >>send<< for Value: >>" + postValue.getText() + "<<"));
+    });
+    hp02.add(showDocIdbutton);
 
     protocolContainer = new FlowPanel();
     protocolContainer.addStyleName(style.protocolContainer());
@@ -44,7 +90,7 @@ public class ModuleBEntryPoint
       }
 
       @Override
-      public void onEvent(InterAppMessageEvent event) {
+      public void onEvent(InterAppMessage event) {
         logEvent(event.getEventType(),
                  event.getParameters()
                       .get(0));
@@ -58,7 +104,7 @@ public class ModuleBEntryPoint
       }
 
       @Override
-      public void onEvent(InterAppMessageEvent event) {
+      public void onEvent(InterAppMessage event) {
         logEvent(event.getEventType(),
                  event.getParameters()
                       .get(0));
@@ -72,7 +118,7 @@ public class ModuleBEntryPoint
       }
 
       @Override
-      public void onEvent(InterAppMessageEvent event) {
+      public void onEvent(InterAppMessage event) {
         logEvent(event.getEventType(),
                  event.getParameters()
                       .get(0));
@@ -88,7 +134,6 @@ public class ModuleBEntryPoint
     protocolContainer.add(new Label("capture Event: >>" + type + "<< for DocId: >>" + docId + "<<"));
   }
 
-
   public interface Resources
     extends ClientBundle {
 
@@ -101,6 +146,14 @@ public class ModuleBEntryPoint
     extends CssResource {
 
     String headline();
+
+    String formularContainer();
+
+    String label();
+
+    String textBox();
+
+    String formularButton();
 
     String protocolContainer();
 

@@ -4,9 +4,20 @@ import com.google.gwt.core.client.EntryPoint;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.resources.client.ClientBundle;
 import com.google.gwt.resources.client.CssResource;
-import com.google.gwt.user.client.ui.*;
-import de.gishmo.gwt.interappmessagebus.client.InterAppMessageEvent;
+import com.google.gwt.user.client.ui.Button;
+import com.google.gwt.user.client.ui.FlowPanel;
+import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.RootPanel;
+import com.google.gwt.user.client.ui.TextBox;
+import com.google.gwt.user.client.ui.VerticalPanel;
+
+import de.gishmo.gwt.interappmessagebus.client.InterAppMessage;
 import de.gishmo.gwt.interappmessagebus.client.elemental.InterAppMessageBus;
+import de.gishmo.gwt.interappmessagebus.client.elemental.prototype.InterAppMessageHandler;
+
+import elemental.client.Browser;
+import elemental.html.FrameElement;
 
 public class ModuleAEntryPoint
   implements EntryPoint {
@@ -16,8 +27,15 @@ public class ModuleAEntryPoint
 
   @Override
   public void onModuleLoad() {
-    Resources resources = GWT.create(Resources.class);
-    ApplicaitonStyle style = resources.style();
+    FrameElement frameElement = (FrameElement) Browser.getWindow()
+                                         .getDocument()
+                                         .getElementById("moduleBWindow");
+    if (frameElement == null) {
+      throw new NullPointerException("iFrameElement with id >>moduleBWindow<< not Found");
+    }
+
+    Resources        resources = GWT.create(Resources.class);
+    ApplicaitonStyle style     = resources.style();
     style.ensureInjected();
 
     FlowPanel container = new FlowPanel();
@@ -49,13 +67,13 @@ public class ModuleAEntryPoint
     Button showDocIdbutton = new Button("Send DocID");
     showDocIdbutton.addStyleName(style.formularButton());
     showDocIdbutton.addClickHandler(event -> {
-      InterAppMessageBus.fireEvent(InterAppMessageEvent.builder()
-                                                       .source("modeulA")
-                                                       .target("modulB")
-                                                       .frameName("moduleBWindow")
-                                                       .eventType("showDocument")
-                                                       .add(tbDocId.getText())
-                                                       .build());
+      InterAppMessageBus.postMessage(frameElement.getContentWindow(),
+                                     InterAppMessage.builder()
+                                                    .source("modeulA")
+                                                    .target("modulB")
+                                                    .eventType("showDocument")
+                                                    .add(tbDocId.getText())
+                                                    .build());
       protocolContainer.add(new Label("Fire Event: >>showDocument<< for DocId: >>" + tbDocId.getText() + "<<"));
     });
     hp02.add(showDocIdbutton);
@@ -63,13 +81,13 @@ public class ModuleAEntryPoint
     Button editDocIdbutton = new Button("Edit DocID");
     editDocIdbutton.addStyleName(style.formularButton());
     editDocIdbutton.addClickHandler(event -> {
-      InterAppMessageBus.fireEvent(InterAppMessageEvent.builder()
-                                                       .source("modeulA")
-                                                       .target("modulB")
-                                                       .frameName("moduleBWindow")
-                                                       .eventType("editDocument")
-                                                       .add(tbDocId.getText())
-                                                       .build());
+      InterAppMessageBus.postMessage(frameElement.getContentWindow(),
+                                     InterAppMessage.builder()
+                                                    .source("modeulA")
+                                                    .target("modulB")
+                                                    .eventType("editDocument")
+                                                    .add(tbDocId.getText())
+                                                    .build());
       protocolContainer.add(new Label("Fire Event: >>editDocument<< for DocId: >>" + tbDocId.getText() + "<<"));
     });
     hp02.add(editDocIdbutton);
@@ -77,13 +95,13 @@ public class ModuleAEntryPoint
     Button removeDocIdbutton = new Button("Remove DocId");
     removeDocIdbutton.addStyleName(style.formularButton());
     removeDocIdbutton.addClickHandler(event -> {
-      InterAppMessageBus.fireEvent(InterAppMessageEvent.builder()
-                                                       .source("modeulA")
-                                                       .target("modulB")
-                                                       .frameName("moduleBWindow")
-                                                       .eventType("removeDocument")
-                                                       .add(tbDocId.getText())
-                                                       .build());
+      InterAppMessageBus.postMessage(frameElement.getContentWindow(),
+                                     InterAppMessage.builder()
+                                                    .source("modeulA")
+                                                    .target("modulB")
+                                                    .eventType("removeDocument")
+                                                    .add(tbDocId.getText())
+                                                    .build());
 
       protocolContainer.add(new Label("Fire Event: >>removeDocument<< for DocId: >>" + tbDocId.getText() + "<<"));
     });
@@ -93,8 +111,27 @@ public class ModuleAEntryPoint
     protocolContainer.addStyleName(style.protocolContainer());
     container.add(protocolContainer);
 
+    InterAppMessageBus.addListener(new InterAppMessageHandler() {
+      @Override
+      public String getEventType() {
+        return "sendValue";
+      }
+
+      @Override
+      public void onEvent(InterAppMessage event) {
+        logEvent(event.getEventType(),
+                 event.getParameters()
+                      .get(0));
+      }
+    });
+
     RootPanel.get("moduleA")
              .add(container);
+  }
+
+  private void logEvent(String type,
+                        String docId) {
+    protocolContainer.add(new Label("capture Event: >>" + type + "<< for DocId: >>" + docId + "<<"));
   }
 
   public interface Resources

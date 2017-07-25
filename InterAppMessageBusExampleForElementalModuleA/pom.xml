@@ -59,7 +59,7 @@
     </dependency>
     <dependency>
       <groupId>de.gishmo.gwt</groupId>
-      <artifactId>InterAppEventBus</artifactId>
+      <artifactId>InterAppMessageBus</artifactId>
       <version>1.0</version>
       <scope>provided</scope>
     </dependency>
