@@ -1,40 +1,39 @@
 package de.gishmo.gwt.interappmessagebus.client;
 
-import elemental.js.json.JsJsonObject;
-import elemental.json.Json;
-import elemental.json.JsonObject;
+import elemental2.core.Global;
+import jsinterop.base.Js;
+import jsinterop.base.JsPropertyMap;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class InterAppMessage {
-
-  private final static String KEY_SOURCE               = "source";
-  private final static String KEY_TARGET               = "target";
-  private final static String KEY_EVENT_TYPE           = "eventType";
-  private final static String KEY_NUMBER_OF_PAREMETERS = "numberOfParameters";
-  private final static String KEY_PARAMETER            = "parameters";
-
-  private String       source;
-  private String       target;
-  private String       eventType;
-  private List<String> parameters;
-
+  
+  private final static String       KEY_SOURCE               = "source";
+  private final static String       KEY_TARGET               = "target";
+  private final static String       KEY_EVENT_TYPE           = "eventType";
+  private final static String       KEY_NUMBER_OF_PAREMETERS = "numberOfParameters";
+  private final static String       KEY_PARAMETER            = "parameters";
+  private              String       source;
+  private              String       target;
+  private              String       eventType;
+  private              List<String> parameters;
+  
   @SuppressWarnings("unused")
   private InterAppMessage() {
   }
-
+  
   private InterAppMessage(Builder builder) {
     assert builder.source != null : "source has no value!";
     assert builder.target != null : "target has no value!";
     assert builder.eventType != null : "eventType has no value!";
-
-    this.source = builder.source;
-    this.target = builder.target;
-    this.eventType = builder.eventType;
+    
+    this.source     = builder.source;
+    this.target     = builder.target;
+    this.eventType  = builder.eventType;
     this.parameters = builder.parameters;
   }
-
+  
   /**
    * Erzeugt aus einem Json-String eine Instanz eines InterAppMessageEvent
    *
@@ -42,9 +41,8 @@ public class InterAppMessage {
    * @return Instanz des InterAppMesssageEventmit den Daten des JSON-Strings
    */
   public static InterAppMessage parseJson(String jsonString) {
-    JsonObject jsonObject = Json.instance()
-                                .parse(jsonString);
-    int parameterCount;
+    JsPropertyMap<String> jsonObject = Js.cast(Global.JSON.parse(jsonString));
+    int                   parameterCount;
     try {
       parameterCount = Integer.parseInt(jsonObject.get(InterAppMessage.KEY_NUMBER_OF_PAREMETERS));
     } catch (NumberFormatException e) {
@@ -59,11 +57,11 @@ public class InterAppMessage {
     }
     return builder.build();
   }
-
+  
   public static Builder builder() {
     return new Builder();
   }
-
+  
   /**
    * URL der Source (aktuell nur zur Info)
    *
@@ -72,7 +70,7 @@ public class InterAppMessage {
   public String getSource() {
     return source;
   }
-
+  
   /**
    * URL des Targets (aktuell nur zur Info)
    *
@@ -81,7 +79,7 @@ public class InterAppMessage {
   public String getTarget() {
     return target;
   }
-
+  
   /**
    * Name des Events (required)
    *
@@ -90,7 +88,7 @@ public class InterAppMessage {
   public String getEventType() {
     return eventType;
   }
-
+  
   /**
    * Liste der Parameter (Liste of Strings)
    *
@@ -99,35 +97,36 @@ public class InterAppMessage {
   public List<String> getParameters() {
     return parameters;
   }
-
+  
   /**
    * Wandelt den Event in einen Json-String um
    *
    * @return Json_string des Events
    */
   public String toJson() {
-    JsonObject jsonObject = JsJsonObject.create();
-    jsonObject.put(InterAppMessage.KEY_SOURCE,
-                   this.source);
-    jsonObject.put(InterAppMessage.KEY_TARGET,
-                   this.target);
-    jsonObject.put(InterAppMessage.KEY_EVENT_TYPE,
-                   this.eventType);
-    jsonObject.put(InterAppMessage.KEY_NUMBER_OF_PAREMETERS,
-                   Integer.toString(parameters.size()));
+    JsPropertyMap<Object> data = JsPropertyMap.of();
+    data.set(InterAppMessage.KEY_SOURCE,
+             this.source);
+    data.set(InterAppMessage.KEY_TARGET,
+             this.target);
+    data.set(InterAppMessage.KEY_EVENT_TYPE,
+             this.eventType);
+    data.set(InterAppMessage.KEY_NUMBER_OF_PAREMETERS,
+             Integer.toString(parameters.size()));
     for (int i = 0; i < parameters.size(); i++) {
-      jsonObject.put(InterAppMessage.KEY_PARAMETER + Integer.toString(i),
-                     parameters.get(i));
+      data.set(InterAppMessage.KEY_PARAMETER + Integer.toString(i),
+               parameters.get(i));
     }
-    return jsonObject.toJson();
+    return Global.JSON.stringify(data);
   }
-
+  
   public static final class Builder {
-    String source;
-    String target;
-    String eventType;
+    
+    String       source;
+    String       target;
+    String       eventType;
     List<String> parameters = new ArrayList<>();
-
+    
     /**
      * URL der Source (aktuell nur zur Info)
      *
@@ -138,7 +137,7 @@ public class InterAppMessage {
       this.source = source;
       return this;
     }
-
+    
     /**
      * URL des Targets (aktuell nur zur Info)
      *
@@ -149,7 +148,7 @@ public class InterAppMessage {
       this.target = target;
       return this;
     }
-
+    
     /**
      * Name des Events (required)
      *
@@ -160,7 +159,7 @@ public class InterAppMessage {
       this.eventType = eventType;
       return this;
     }
-
+    
     /**
      * Fügt einen String als Parameter zum Event hinzu. Es können 0 - n Parameter vom Typ String mitgegeben werdem.
      *
@@ -171,7 +170,7 @@ public class InterAppMessage {
       parameters.add(parameter);
       return this;
     }
-
+    
     /**
      * Erzeugt den Event mit den übergebenen Daten
      *
@@ -180,5 +179,7 @@ public class InterAppMessage {
     public InterAppMessage build() {
       return new InterAppMessage(this);
     }
+    
   }
+  
 }
