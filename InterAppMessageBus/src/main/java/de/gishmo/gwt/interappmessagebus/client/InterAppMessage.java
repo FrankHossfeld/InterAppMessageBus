@@ -114,7 +114,7 @@ public class InterAppMessage {
     data.set(InterAppMessage.KEY_NUMBER_OF_PAREMETERS,
              Integer.toString(parameters.size()));
     for (int i = 0; i < parameters.size(); i++) {
-      data.set(InterAppMessage.KEY_PARAMETER + Integer.toString(i),
+      data.set(InterAppMessage.KEY_PARAMETER + i,
                parameters.get(i));
     }
     return Global.JSON.stringify(data);
