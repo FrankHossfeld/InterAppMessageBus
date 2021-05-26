@@ -1,6 +1,5 @@
 package de.gishmo.gwt.interappmessagebus.client.elemental2;
 
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.core.client.Scheduler;
 import de.gishmo.gwt.interappmessagebus.client.InterAppMessage;
 import elemental2.dom.DomGlobal;
@@ -38,7 +37,6 @@ public class InterAppMessageBus {
   
   private static void handleEvent(String eventType,
                                   Event event) {
-    GWT.debugger();
     MessageEvent    messageEvent         = Js.cast(event);
     InterAppMessage interAppMessageEvent = InterAppMessage.parseJson((String) messageEvent.data);
     if (eventType.equals(interAppMessageEvent.getEventType())) {

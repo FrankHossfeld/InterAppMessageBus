@@ -53,7 +53,7 @@ public class InterAppMessage {
                                                      .target(jsonObject.get(InterAppMessage.KEY_TARGET))
                                                      .eventType(jsonObject.get(InterAppMessage.KEY_EVENT_TYPE));
     for (int i = 0; i < parameterCount; i++) {
-      builder.add(jsonObject.get(InterAppMessage.KEY_PARAMETER + Integer.toString(i)));
+      builder.add(jsonObject.get(InterAppMessage.KEY_PARAMETER + i));
     }
     return builder.build();
   }
