@@ -23,3 +23,4 @@ PoC using Elemental 2 postMessage to communicate between two GWT applications.
 
 Note: You need to start **Module B** before **Module A**!
 
+Call `http://127.0.0.1:8888/InterAppMessageBusExampleForElemental.html` in the browser.
